@@ -1,0 +1,171 @@
+Events:
+  pvp1_join:
+    type: block_interact
+    conditions:
+    - '%block_world% == world'
+    - '%block% == PALE_OAK_BUTTON'
+    - '%block_x% == 157'
+    - '%block_y% == 116'
+    - '%block_z% == 160'
+    actions:
+      default:
+      - 'call_event: pvp_on_join_map;%players_count%=%servervariables_globalvalue_pvp1_count%;%init_event%=pvp1_start_match;%map_prefix%=pvp1;%map_name%=Arena Final'
+
+  pvp1_clean_map:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_clean_map;%world_name%=pvp1;%pos1%=0,-45,0;%pos2%=-243,36,-224'
+
+  pvp1_reset:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_reset_variables;%map_prefix%=pvp1'
+
+  pvp1_music:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_play_music;%pvp_world%=pvp1;%disc%=minecraft:music_disc.relic'
+      - 'wait: 211'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp1;%disc%=minecraft:music_disc.relic'
+      - 'wait: 211'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp1;%disc%=minecraft:music_disc.relic'
+      - 'wait: 211'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp1;%disc%=minecraft:music_disc.relic'
+      - 'wait: 211'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp1;%disc%=minecraft:music_disc.relic'
+      - 'wait: 211'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp1;%disc%=minecraft:music_disc.relic'
+
+  pvp1_start_match:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_on_map_enter;%p1%=%servervariables_globalvalue_pvp1_p1%;%p2%=%servervariables_globalvalue_pvp1_p2%;%pos1%=e:pvp1:-125,-40,-75:0:-180;%pos2%=e:pvp1:-125,-40,-155:0:0'
+      - 'wait: 5'
+      - 'console_command: kingscenes playkingscene 8 %servervariables_globalvalue_pvp1_p1%'
+      - 'console_command: kingscenes playkingscene 8 %servervariables_globalvalue_pvp1_p2%'
+      - 'wait: 48'
+      - 'call_event: pvp1_init_players'
+      - 'wait: 10'
+      - 'call_event: pvp1_music'
+
+  pvp1_init_players:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_init_players;%p1%=%servervariables_globalvalue_pvp1_p1%;%p2%=%servervariables_globalvalue_pvp1_p2%;%pos1%=e:pvp1:-125,-40,-75:0:-180;%pos2%=e:pvp1:-125,-40,-155:0:0;%item_theme_male%=MAESTRO;%item_theme_female%=MAESTRA;%pvp_world%=%player_world%;%border_time%=480'
+
+  pvp1_death:
+    type: player_death
+    conditions:
+    - '%player_world% == pvp1'
+    - '%worldguard_region_name% == pvp1'
+    - '%player% == %servervariables_globalvalue_pvp1_p1% execute pvp1_p1_death'
+    - '%player% == %servervariables_globalvalue_pvp1_p2% execute pvp1_p2_death'
+    - ''
+    actions:
+      pvp1_p1_death:
+      - 'cancel_event: true'
+      - 'console_command: svar add pvp1_p2_wins 1'
+      - 'call_event: pvp1_death_check;%c_winner%=%servervariables_globalvalue_pvp1_p2%;%c_winner_rounds%=%servervariables_globalvalue_pvp1_p2_wins%;%c_loser%=%servervariables_globalvalue_pvp1_p1%'
+      pvp1_p2_death:
+      - 'cancel_event: true'
+      - 'console_command: svar add pvp1_p1_wins 1'
+      - 'call_event: pvp1_death_check;%c_winner%=%servervariables_globalvalue_pvp1_p1%;%c_winner_rounds%=%servervariables_globalvalue_pvp1_p1_wins%;%c_loser%=%servervariables_globalvalue_pvp1_p2%'
+
+  pvp1_death_check:
+    # %c_winner%: Nombre del jugador que gana
+    # %c_winner_rounds%: Número de rondas ganadas por el jugador que gana
+    # %c_loser%: Nombre del jugador que pierde
+    type: call
+    conditions:
+    - '%c_winner_rounds% == 2 execute champion'
+    actions:
+      default:
+      - 'call_event: pvp_on_round_end;%winner%=%c_winner%;%winner_rounds%=%c_winner_rounds%;%loser%=%c_loser%;%round%=%servervariables_globalvalue_pvp1_round%;%pvp_world%=%player_world%;%reset_event%=pvp1_reset;%init_event%=pvp1_init_players;%round_name%=pvp1_round;%clean_event%=pvp1_clean_map'
+      champion:
+      - 'call_event: pvp1_clean_map'
+      - 'to_world: pvp1: title: 20;80;20;&e%c_winner%;&a&lES EL CAMPEÓN'
+      - 'to_player: %c_winner%: playsound: UI_TOAST_CHALLENGE_COMPLETE;10;0.1'
+      - 'to_player: %c_loser%: playsound: ENTITY_VILLAGER_DEATH;10;0.1'
+      - 'call_event: pvp_tactical_timeout;%p1%=%c_winner%;%p2%=%c_loser%'
+      - 'call_event: pvp1_champion_fireworks'
+      - 'wait: 15'
+      - 'to_world: pvp1: message: &a&lVolviendo al lobby en 5 segundos...'
+      - 'wait: 5'
+      - 'call_event: pvp1_reset'
+      - 'call_event: pvp_return_to_lobby;%p1%=%c_winner%;%p2%=%c_loser%'
+      - 'wait: 1'
+      - 'console_command: credits %c_winner%'
+
+  pvp1_champion_fireworks:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp1_red_fireworks;%power%=3'
+      - 'call_event: pvp1_yellow_fireworks;%power%=3'
+      - 'wait: 1'
+      - 'call_event: pvp1_red_fireworks;%power%=2'
+      - 'call_event: pvp1_yellow_fireworks;%power%=2'
+      - 'wait: 1'
+      - 'call_event: pvp1_red_fireworks;%power%=1'
+      - 'call_event: pvp1_yellow_fireworks;%power%=1'
+      - 'wait: 1'
+      - 'call_event: pvp1_red_fireworks;%power%=2'
+      - 'call_event: pvp1_yellow_fireworks;%power%=2'
+      - 'wait: 1'
+      - 'call_event: pvp1_red_fireworks;%power%=3'
+      - 'call_event: pvp1_yellow_fireworks;%power%=3'
+      - 'wait: 1'
+      - 'call_event: pvp1_red_fireworks;%power%=2'
+      - 'call_event: pvp1_yellow_fireworks;%power%=2'
+      - 'wait: 1'
+      - 'call_event: pvp1_red_fireworks;%power%=1'
+      - 'call_event: pvp1_yellow_fireworks;%power%=1'
+      - 'wait: 1'
+      - 'call_event: pvp1_red_fireworks;%power%=2'
+      - 'call_event: pvp1_yellow_fireworks;%power%=2'
+      - 'wait: 1'
+      - 'call_event: pvp1_red_fireworks;%power%=3'
+      - 'call_event: pvp1_yellow_fireworks;%power%=3'
+
+  pvp1_yellow_fireworks:
+    type: call
+    actions:
+      default:
+        # Centro
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-121;-31;-84;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-121;-31;-146;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-128;-31;-84;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-128;-31;-146;pvp1 trail:true'
+        # Lado
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-103;-31;-144;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-103;-31;-86;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-85;-31;-126;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-85;-31;-104;pvp1 trail:true'
+        # Lado
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-146;-31;-86;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-146;-31;-144;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-164;-31;-126;pvp1 trail:true'
+        - 'firework: colors:YELLOW,YELLOW type:STAR power:%power% location:-164;-31;-104;pvp1 trail:true'
+
+  pvp1_red_fireworks:
+    type: call
+    actions:
+      default:
+        # Centro
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-134;-19;-84;pvp1 trail:true'
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-134;-19;-146;pvp1 trail:true'
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-115;-19;-84;pvp1 trail:true'
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-115;-19;-146;pvp1 trail:true'
+        # Lado
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-166;-19;-115;pvp1 trail:true'
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-157;-19;-137;pvp1 trail:true'
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-157;-19;-93;pvp1 trail:true'
+        # Lado
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-92;-19;-137;pvp1 trail:true'
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-83;-19;-115;pvp1 trail:true'
+        - 'firework: colors:RED,RED type:BALL_LARGE power:%power% location:-92;-19;-93;pvp1 trail:true'

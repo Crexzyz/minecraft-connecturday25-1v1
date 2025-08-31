@@ -1,0 +1,15 @@
+variables:
+  admin:
+    variable_type: PLAYER
+    value_type: INTEGER
+    initial_value: 0
+    limitations:
+      min_value: 0
+      max_value: 1
+  map:
+    variable_type: PLAYER
+    value_type: INTEGER
+    initial_value: 0
+    limitations:
+      min_value: 0
+      max_value: 1

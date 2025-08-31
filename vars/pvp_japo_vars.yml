@@ -1,0 +1,41 @@
+variables:
+  pvp_japo_count:
+    variable_type: GLOBAL
+    value_type: INTEGER
+    initial_value: 0
+    limitations:
+      min_value: 0
+      max_value: 2
+  pvp_japo_p1:
+    variable_type: GLOBAL
+    value_type: TEXT
+    initial_value: ""
+  pvp_japo_p1_wins:
+    variable_type: GLOBAL
+    value_type: INTEGER
+    initial_value: 0
+    limitations:
+      min_value: 0
+      max_value: 2
+  pvp_japo_p2:
+    variable_type: GLOBAL
+    value_type: TEXT
+    initial_value: ""
+  pvp_japo_p2_wins:
+    variable_type: GLOBAL
+    value_type: INTEGER
+    initial_value: 0
+    limitations:
+      min_value: 0
+      max_value: 2
+  pvp_japo_round:
+    variable_type: GLOBAL
+    value_type: INTEGER
+    initial_value: 1
+    limitations:
+      min_value: 1
+      max_value: 3
+  pvp_japo_round_text:
+    variable_type: GLOBAL
+    value_type: TEXT
+    initial_value: "➀➁➂"

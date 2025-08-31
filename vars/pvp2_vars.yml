@@ -1,0 +1,41 @@
+variables:
+  pvp2_count:
+    variable_type: GLOBAL
+    value_type: INTEGER
+    initial_value: 0
+    limitations:
+      min_value: 0
+      max_value: 2
+  pvp2_p1:
+    variable_type: GLOBAL
+    value_type: TEXT
+    initial_value: ""
+  pvp2_p1_wins:
+    variable_type: GLOBAL
+    value_type: INTEGER
+    initial_value: 0
+    limitations:
+      min_value: 0
+      max_value: 2
+  pvp2_p2:
+    variable_type: GLOBAL
+    value_type: TEXT
+    initial_value: ""
+  pvp2_p2_wins:
+    variable_type: GLOBAL
+    value_type: INTEGER
+    initial_value: 0
+    limitations:
+      min_value: 0
+      max_value: 2
+  pvp2_round:
+    variable_type: GLOBAL
+    value_type: INTEGER
+    initial_value: 1
+    limitations:
+      min_value: 1
+      max_value: 3
+  pvp2_round_text:
+    variable_type: GLOBAL
+    value_type: TEXT
+    initial_value: "➀➁➂"

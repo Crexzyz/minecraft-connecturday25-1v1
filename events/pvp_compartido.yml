@@ -1,0 +1,282 @@
+Events:
+  pvp_reset_variables:
+    # Evento que se activa para reiniciar las variables de un mapa
+    # %map_prefix% es el prefijo del mapa usado para definir las variables
+    type: call
+    actions:
+      default:
+      - 'console_command: ce interrupt %map_prefix%_music'
+      - 'console_command: svar set map 0 %servervariables_globalvalue_{map_prefix}_p1%'
+      - 'console_command: svar set map 0 %servervariables_globalvalue_{map_prefix}_p2%'
+      - 'console_command: svar reset %map_prefix%_count'
+      - 'console_command: svar reset %map_prefix%_p1'
+      - 'console_command: svar reset %map_prefix%_p2'
+      - 'console_command: svar reset %map_prefix%_p1_wins'
+      - 'console_command: svar reset %map_prefix%_p2_wins'
+      - 'console_command: svar reset %map_prefix%_round'
+      - 'call_event: pvp_update_round_text;%world%=%map_prefix%'
+      - 'to_world: %player_world%: message: &a&lSe ha reiniciado el mapa %map_prefix%'
+
+  pvp_on_join_map:
+    # Evento que se activa cuando un jugador se une a un mapa
+    # %players_count% es la cantidad de jugadores en el mapa
+    # %map_prefix% es el prefijo del mapa usado para definir las variables
+    # %init_event% es el evento que inicializa el juego en el mapa
+    # %map_name% es el nombre bonito del mapa
+    type: call
+    conditions:
+    - '%player% == %servervariables_globalvalue_{map_prefix}_p1% execute pvp_exit'
+    - '%players_count% >= 2 and %servervariables_value_admin% == 0 execute pvp_full'
+    - '%players_count% >= 2 and %servervariables_value_admin% == 1 execute pvp_spectate'
+    - '%servervariables_value_map% == 1 execute pvp_in_queue'
+    - '%players_count% == 0 execute pvp_join1'
+    - '%players_count% == 1 execute pvp_join2'
+    actions:
+      pvp_join1:
+      - 'clear_inventory'
+      - 'console_command: svar add %map_prefix%_count 1'
+      - 'console_command: svar set %map_prefix%_p1 %player%'
+      - 'console_command: svar set map 1 %player%'
+      - 'to_world: world: message: &a&l%player% esperando para una partida en el mapa %map_name%'
+      pvp_join2:
+      - 'clear_inventory'
+      - 'console_command: svar add %map_prefix%_count 1'
+      - 'console_command: svar set %map_prefix%_p2 %player%'
+      - 'console_command: svar set map 1 %player%'
+      - 'console_command: svar set %map_prefix%_round 1'
+      - 'to_world: world: message: &a&lIniciando partida en el mapa %map_name%: %servervariables_globalvalue_{map_prefix}_p1% vs %player%!'
+      - 'to_player: %servervariables_globalvalue_{map_prefix}_p1%: give_potion_effect: BLINDNESS;60;6;false'
+      - 'to_player: %servervariables_globalvalue_{map_prefix}_p2%: give_potion_effect: BLINDNESS;60;6;false'
+      - 'wait: 1'
+      - 'call_event: %init_event%'
+      pvp_full:
+      - 'cancel_event: true'
+      - 'message: &cEl mapa está ocupado'
+      pvp_in_queue:
+      - 'cancel_event: true'
+      - 'message: &cSolo puedes estar en una fila a la vez'
+      pvp_spectate:
+      - 'cancel_event: true'
+      - 'message: Entrando en modo espectador'
+      - 'console_command: mv tp %player% %map_prefix%'
+      - 'wait: 1'
+      - 'gamemode: SPECTATOR'
+      pvp_exit:
+      - 'cancel_event: true'
+      - 'console_command: svar reset map %player%'
+      - 'console_command: svar reset %map_prefix%_count'
+      - 'console_command: svar reset %map_prefix%_p1'
+      - 'message: &eSaliste de la espera en el mapa %map_name%'
+
+  pvp_give_kit:
+    # Evento que se activa para darle un kit a un jugador
+    # %target% es el jugador que recibe el kit
+    # %theme_male% es el tema del kit, nombres masculinos
+    # %theme_female% es el tema del kit, nombres femeninos
+    type: call
+    conditions:
+      - '%target% != ""'
+    actions:
+      default:
+      - 'to_player: %target%: clear_inventory'
+      - 'to_player: %target%: heal: 20'
+      - 'to_player: %target%: set_food_level: 20'
+      - 'to_player: %target%: remove_potion_effect: all'
+      - 'wait_ticks: 5'
+      - 'to_player: %target%: give_item: id:NETHERITE_HELMET;slot:HELMET;amount:1;name:&C&LCASCO %theme_male%'
+      - 'to_player: %target%: give_item: id:NETHERITE_CHESTPLATE;slot:CHESTPLATE;amount:1;name:&C&LPECHERA %theme_female%'
+      - 'to_player: %target%: give_item: id:NETHERITE_LEGGINGS;slot:LEGGINGS;amount:1;name:&C&LFALDA %theme_female%'
+      - 'to_player: %target%: give_item: id:NETHERITE_BOOTS;slot:BOOTS;amount:1;name:&C&LBOTAS %theme_female%S'
+      - 'to_player: %target%: give_item: id:DIAMOND_SWORD;amount:1;name:&C&LESPADA %theme_female%'
+      - 'to_player: %target%: give_item: id:IRON_AXE;amount:1;name:&C&LHACHA %theme_female%'
+      - 'to_player: %target%: give_item: id:BOW;amount:1;name:&C&LARCO %theme_male%'
+      - 'to_player: %target%: give_item: id:ENCHANTED_GOLDEN_APPLE;amount:1'
+      - 'to_player: %target%: give_item: id:COBBLESTONE;amount:30'
+      - 'to_player: %target%: give_item: id:LAVA_BUCKET;amount:1'
+      - 'to_player: %target%: give_item: id:WATER_BUCKET;amount:1'
+      - 'to_player: %target%: give_item: id:COBWEB;amount:10'
+      - 'to_player: %target%: give_item: id:GOLDEN_APPLE;amount:2'
+      - 'to_player: %target%: give_item: id:ARROW;amount:15;name:&C&FLECHA %theme_female%'
+      - 'to_player: %target%: give_item: id:COOKED_PORKCHOP;amount:5;name:&C&LCARNE DE CERDO'
+      - 'to_player: %target%: give_item: id:LAVA_BUCKET;amount:1'
+      - 'to_player: %target%: give_item: id:WATER_BUCKET;amount:1'
+      - 'to_player: %target%: give_item: id:SHIELD;amount:1;slot:OFF_HAND'
+      - 'to_player: %target%: playsound: ITEM_ARMOR_EQUIP_NETHERITE;10;0.1'
+      - 'to_player: %target%: message: &aKit obtenido.'
+
+  pvp_clean_map:
+    # Quita los bloques colocables en el mapa para iniciar una nueva ronda
+    type: call
+    actions:
+      default:
+      - 'console_command: /world %world_name%'
+      - 'console_command: /pos1 %pos1%'
+      - 'console_command: /pos2 %pos2%'
+      - 'wait_ticks: 5'
+      - 'console_command: /replace water,lava,cobweb,cobblestone,stone,obsidian air'
+      - 'console_command: mv worldborder set 250 0 %world_name%'
+      - 'to_world: %world_name%: message: &a☑ &lEl mapa se ha limpiado.'
+
+  pvp_on_map_enter:
+    # Evento que se activa cuando un jugador entra al mapa en la primera ronda
+    # %p1% y %p2% son los jugadores que se están uniendo
+    # %pos1% y %pos2% son las posiciones de spawn de los jugadores, formato multiverse
+    type: call
+    actions:
+      default:
+      - 'to_player: %p1%: gamemode: SURVIVAL'
+      - 'to_player: %p2%: gamemode: SURVIVAL'
+      - 'console_command: mv tp %p1% %pos1%'
+      - 'console_command: mv tp %p2% %pos2%'
+      - 'to_player: %p1%: give_potion_effect: SLOWNESS;100;10;false'
+      - 'to_player: %p2%: give_potion_effect: SLOWNESS;100;10;false'
+      - 'to_player: %p1%: give_potion_effect: BLINDNESS;100;6;false'
+      - 'to_player: %p2%: give_potion_effect: BLINDNESS;100;6;false'
+
+  pvp_play_music:
+    # Reproduce la música de fondo para los jugadores
+    # %pvp_world% es el mundo en el que se juega
+    # %disc% es el nombre del disco
+    type: call
+    actions:
+      default:
+      - 'console_command: execute at @a[nbt={Dimension:"minecraft:%pvp_world%"}] run playsound %disc% music @p'
+
+  pvp_init_players:
+    # Inicializa a los jugadores en survival, los coloca en el mapa y les da el kit
+    # %p1% y %p2% son los jugadores que se están uniendo
+    # %pos1% y %pos2% son las posiciones de spawn de los jugadores, formato multiverse
+    # %item_theme_male% es el tema del kit, nombres masculinos
+    # %item_theme_female% es el tema del kit, nombres femeninos
+    # %pvp_world% es el mundo en el que se juega
+    # %border_time% tiempo que tarda el borde en cerrarse en segundos
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_update_round_text;%world%=%pvp_world%'
+      - 'to_player: %p1%: gamemode: SURVIVAL'
+      - 'to_player: %p2%: gamemode: SURVIVAL'
+      - 'call_event: pvp_give_kit;%target%=%p1%;%theme_male%=%item_theme_male%;%theme_female%=%item_theme_female%'
+      - 'call_event: pvp_give_kit;%target%=%p2%;%theme_male%=%item_theme_male%;%theme_female%=%item_theme_female%'
+      - 'to_player: %p1%: give_potion_effect: SLOWNESS;200;10;false'
+      - 'to_player: %p2%: give_potion_effect: SLOWNESS;200;10;false'
+      - 'console_command: mv tp %p1% %pos1%'
+      - 'console_command: mv tp %p2% %pos2%'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_HAT;10;0.1'
+      - 'to_world: %pvp_world%: title: 20;40;20;&e&lEMPEZAMOS EN...;&A&L10 SEGUNDOS'
+      - 'wait: 5'
+      - 'to_world: %pvp_world%: title: 20;40;20;&e&lEMPEZAMOS EN...;&A&L5 SEGUNDOS'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_BASS;10;0.1'
+      - 'wait: 1'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_BASS;10;0.1'
+      - 'to_world: %pvp_world%: title: 20;40;20;&e&l4;none'
+      - 'wait: 1'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_BASS;10;0.1'
+      - 'to_world: %pvp_world%: title: 20;40;20;&e&l3;none'
+      - 'wait: 1'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_BASS;10;0.1'
+      - 'to_world: %pvp_world%: title: 20;40;20;&e&l2;none'
+      - 'wait: 1'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_BASS;10;0.1'
+      - 'to_world: %pvp_world%: title: 20;40;20;&e&l1;none'
+      - 'wait: 1'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_BELL;10;0.1'
+      - 'to_world: %pvp_world%: title: 10;10;10;&e&lGO;none'
+      - 'wait: 1'
+      - 'to_world: %pvp_world%: playsound: BLOCK_STONE_BUTTON_CLICK_ON;10;0.1'
+      - 'to_world: %pvp_world%: message: &e⚠ Reduciendo el borde del mapa ⚠'
+      - 'console_command: mv worldborder set 5 %border_time% %pvp_world%'
+
+  pvp_tactical_timeout:
+    # Pone a los jugadores en modo espera cuando una ronda termina
+    # %p1% y %p2% son los jugadores que están en la partida
+    type: call
+    actions:
+      default:
+      - 'to_player: %p2%: clear_inventory'
+      - 'to_player: %p2%: gamemode: SPECTATOR'
+      - 'to_player: %p1%: clear_inventory'
+      - 'console_command: execute at %p1% run summon splash_potion ~ ~ ~ {Item:{id:"minecraft:splash_potion",count:1,components:{"minecraft:potion_contents":{potion:"minecraft:water"}}}}'
+      - 'to_player: %p1%: heal: 20'
+      - 'to_player: %p2%: heal: 20'
+      - 'to_player: %p1%: set_food_level: 20'
+      - 'to_player: %p2%: set_food_level: 20'
+      - 'to_player: %p1%: remove_potion_effect: all'
+      - 'to_player: %p1%: firework: colors:YELLOW,RED type:BALL fade:AQUA power:0'
+      - 'wait: 1'
+      - 'to_player: %p1%: firework: colors:YELLOW,RED type:BALL fade:AQUA power:0'
+      - 'wait: 1'
+      - 'to_player: %p1%: firework: colors:YELLOW,RED type:BALL fade:AQUA power:0'
+      - 'wait: 1'
+      - 'to_player: %p1%: firework: colors:YELLOW,RED type:BALL fade:AQUA power:0'
+      - 'wait: 1'
+      - 'to_player: %p1%: firework: colors:YELLOW,RED type:BALL fade:AQUA power:0'
+      - 'wait: 1'
+      - 'to_player: %p1%: firework: colors:YELLOW,RED type:BALL fade:AQUA power:0'
+      - 'console_command: execute at %p1% run summon splash_potion ~ ~ ~ {Item:{id:"minecraft:splash_potion",count:1,components:{"minecraft:potion_contents":{potion:"minecraft:water"}}}}'
+      - 'to_player: %p1%: heal: 20'
+      - 'to_player: %p1%: set_food_level: 20'
+      - 'wait: 6'
+
+  pvp_return_to_lobby:
+    # %p1% y %p2% son los jugadores que hay que llevar al lobby
+    type: call
+    actions:
+      default:
+      - 'console_command: mv tp %p1% world'
+      - 'console_command: mv tp %p2% world'
+
+  pvp_update_round_text:
+    # Actualiza el texto de la ronda en curso
+    # %world%: Mundo en el que se juega
+    type: call
+    conditions:
+    - '%servervariables_globalvalue_{world}_round% == 1 execute round1'
+    - '%servervariables_globalvalue_{world}_round% == 2 execute round2'
+    - '%servervariables_globalvalue_{world}_round% == 3 execute round3'
+    actions:
+      round1:
+      - 'console_command: svar set %world%_round_text &a➊&f➁➂'
+      round2:
+      - 'console_command: svar set %world%_round_text &a➊➋&f➂'
+      round3:
+      - 'console_command: svar set %world%_round_text &a➊➋➌'
+
+  pvp_on_round_end:
+    # Evento que se activa cuando un jugador muere y determina si hay que
+    # finalizar la partida o continuar otra ronda
+    # %winner%: Nombre del jugador que gana
+    # %winner_rounds%: Número de rondas ganadas del jugador que ganó
+    # %loser%: Nombre del jugador que pierde
+    # %round%: Rondas totales de la partida
+    # %pvp_world%: Mundo en el que se juega
+    # %reset_event%: Nombre del evento que reinicia el mapa
+    # %init_event%: Nombre del evento que inicializa a los jugadores
+    # %clean_event%: Nombre del evento que limpia el mapa
+    # %round_name%: Nombre de la variable que almacena la ronda actual
+    type: call
+    conditions:
+    - '2 == %winner_rounds% execute winner'
+    actions:
+      winner:
+      - 'call_event: %clean_event%'
+      - 'to_world: %pvp_world%: title: 20;80;20;&e%winner%;&a&lGANA LA PARTIDA!'
+      - 'to_player: %winner%: playsound: UI_TOAST_CHALLENGE_COMPLETE;10;0.1'
+      - 'to_player: %loser%: playsound: ENTITY_VILLAGER_DEATH;10;0.1'
+      - 'call_event: pvp_tactical_timeout;%p1%=%winner%;%p2%=%loser%'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_PLING;10;0.1'
+      - 'to_world: %pvp_world%: message: &a&lVolviendo al lobby en 10 segundos...'
+      - 'wait: 10'
+      - 'call_event: pvp_return_to_lobby;%p1%=%winner%;%p2%=%loser%'
+      - 'call_event: %reset_event%'
+      default:
+      - 'call_event: %clean_event%'
+      - 'to_world: %pvp_world%: title: 20;80;20;&e%winner%;&a&lGANA LA RONDA %round%!'
+      - 'to_player: %winner%: playsound: ITEM_TOTEM_USE;10;0.1'
+      - 'to_player: %loser%: playsound: ENTITY_VILLAGER_DEATH;10;0.1'
+      - 'call_event: pvp_tactical_timeout;%p1%=%winner%;%p2%=%loser%'
+      - 'console_command: svar add %round_name% 1'
+      - 'to_world: %pvp_world%: playsound: BLOCK_NOTE_BLOCK_PLING;10;0.1'
+      - 'to_world: %pvp_world%: message: &a&lIniciando siguiente ronda en 10 segundos...'
+      - 'wait: 10'
+      - 'call_event: %init_event%'

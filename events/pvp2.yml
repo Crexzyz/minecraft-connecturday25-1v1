@@ -1,0 +1,76 @@
+Events:
+  pvp2_join:
+    type: block_interact
+    conditions:
+    - '%block_world% == world'
+    - '%block% == PALE_OAK_BUTTON'
+    - '%block_x% == 157'
+    - '%block_y% == 116'
+    - '%block_z% == 164'
+    actions:
+      default:
+      - 'call_event: pvp_on_join_map;%players_count%=%servervariables_globalvalue_pvp2_count%;%init_event%=pvp2_start_match;%map_prefix%=pvp2;%map_name%=Mazmorra'
+
+  pvp2_clean_map:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_clean_map;%world_name%=pvp2;%pos1%=-19,65,54;%pos2%=19,91,-50'
+
+  pvp2_reset:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_reset_variables;%map_prefix%=pvp2'
+
+  pvp2_music:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_play_music;%pvp_world%=pvp2;%disc%=minecraft:music_disc.11'
+      - 'wait: 144'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp2;%disc%=minecraft:music_disc.11'
+      - 'wait: 144'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp2;%disc%=minecraft:music_disc.11'
+      - 'wait: 144'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp2;%disc%=minecraft:music_disc.11'
+      - 'wait: 144'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp2;%disc%=minecraft:music_disc.11'
+      - 'wait: 144'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp2;%disc%=minecraft:music_disc.11'
+
+  pvp2_start_match:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_on_map_enter;%p1%=%servervariables_globalvalue_pvp2_p1%;%p2%=%servervariables_globalvalue_pvp2_p2%;%pos1%=e:pvp2:1.5,67,-47.5:0:0;%pos2%=e:pvp2:1.5,67,50.5:0:180'
+      - 'wait: 5'
+      - 'console_command: kingscenes playkingscene 5 %servervariables_globalvalue_pvp2_p1%'
+      - 'console_command: kingscenes playkingscene 5 %servervariables_globalvalue_pvp2_p2%'
+      - 'wait: 17'
+      - 'call_event: pvp2_init_players'
+      - 'wait: 10'
+      - 'call_event: pvp2_music'
+
+  pvp2_init_players:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_init_players;%p1%=%servervariables_globalvalue_pvp2_p1%;%p2%=%servervariables_globalvalue_pvp2_p2%;%pos1%=e:pvp2:1.5,67,-47.5:0:0;%pos2%=e:pvp2:1.5,67,50.5:0:180;%item_theme_male%=CONQUISTADOR;%item_theme_female%=CONQUISTADORA;%pvp_world%=%player_world%;%border_time%=240'
+
+  pvp2_death:
+    type: player_death
+    conditions:
+    - '%player_world% == pvp2'
+    - '%worldguard_region_name% == pvp2'
+    - '%player% == %servervariables_globalvalue_pvp2_p1% execute pvp2_p1_death'
+    - '%player% == %servervariables_globalvalue_pvp2_p2% execute pvp2_p2_death'
+    actions:
+      pvp2_p1_death:
+      - 'cancel_event: true'
+      - 'console_command: svar add pvp2_p2_wins 1'
+      - 'call_event: pvp_on_round_end;%winner%=%servervariables_globalvalue_pvp2_p2%;%winner_rounds%=%servervariables_globalvalue_pvp2_p2_wins%;%loser%=%servervariables_globalvalue_pvp2_p1%;%round%=%servervariables_globalvalue_pvp2_round%;%pvp_world%=%player_world%;%reset_event%=pvp2_reset;%init_event%=pvp2_init_players;%round_name%=pvp2_round;%clean_event%=pvp2_clean_map'
+      pvp2_p2_death:
+      - 'cancel_event: true'
+      - 'console_command: svar add pvp2_p1_wins 1'
+      - 'call_event: pvp_on_round_end;%winner%=%servervariables_globalvalue_pvp2_p1%;%winner_rounds%=%servervariables_globalvalue_pvp2_p1_wins%;%loser%=%servervariables_globalvalue_pvp2_p2%;%round%=%servervariables_globalvalue_pvp2_round%;%pvp_world%=%player_world%;%reset_event%=pvp2_reset;%init_event%=pvp2_init_players;%round_name%=pvp2_round;%clean_event%=pvp2_clean_map'

@@ -1,0 +1,76 @@
+Events:
+  pvp_japo_join:
+    type: block_interact
+    conditions:
+    - '%block_world% == world'
+    - '%block% == PALE_OAK_BUTTON'
+    - '%block_x% == 172'
+    - '%block_y% == 116'
+    - '%block_z% == 148'
+    actions:
+      default:
+      - 'call_event: pvp_on_join_map;%players_count%=%servervariables_globalvalue_pvp_japo_count%;%init_event%=pvp_japo_start_match;%map_prefix%=pvp_japo;%map_name%=Japonés'
+
+  pvp_japo_clean_map:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_clean_map;%world_name%=pvp_japo;%pos1%=-70,51,63;%pos2%=65,117,-73'
+
+  pvp_japo_reset:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_reset_variables;%map_prefix%=pvp_japo'
+
+  pvp_japo_music:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_play_music;%pvp_world%=pvp_japo;%disc%=minecraft:music_disc.ward'
+      - 'wait: 279'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp_japo;%disc%=minecraft:music_disc.ward'
+      - 'wait: 279'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp_japo;%disc%=minecraft:music_disc.ward'
+      - 'wait: 279'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp_japo;%disc%=minecraft:music_disc.ward'
+      - 'wait: 279'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp_japo;%disc%=minecraft:music_disc.ward'
+      - 'wait: 279'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp_japo;%disc%=minecraft:music_disc.ward'
+
+  pvp_japo_start_match:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_on_map_enter;%p1%=%servervariables_globalvalue_pvp_japo_p1%;%p2%=%servervariables_globalvalue_pvp_japo_p2%;%pos1%=e:pvp_japo:26.5,66,0.5:0:90;%pos2%=e:pvp_japo:-26.5,66,0.5:0:-90'
+      - 'wait: 5'
+      - 'console_command: kingscenes playkingscene 6 %servervariables_globalvalue_pvp_japo_p1%'
+      - 'console_command: kingscenes playkingscene 6 %servervariables_globalvalue_pvp_japo_p2%'
+      - 'wait: 24'
+      - 'call_event: pvp_japo_init_players'
+      - 'wait: 10'
+      - 'call_event: pvp_japo_music'
+
+  pvp_japo_init_players:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_init_players;%p1%=%servervariables_globalvalue_pvp_japo_p1%;%p2%=%servervariables_globalvalue_pvp_japo_p2%;%pos1%=e:pvp_japo:26.5,66,0.5:0:90;%pos2%=e:pvp_japo:-26.5,66,0.5:0:-90;%item_theme_male%=JAPONÉS;%item_theme_female%=JAPONESA;%pvp_world%=%player_world%;%border_time%=360'
+
+  pvp_japo_death:
+    type: player_death
+    conditions:
+    - '%player_world% == pvp_japo'
+    - '%worldguard_region_name% == pvp_japo'
+    - '%player% == %servervariables_globalvalue_pvp_japo_p1% execute pvp_japo_p1_death'
+    - '%player% == %servervariables_globalvalue_pvp_japo_p2% execute pvp_japo_p2_death'
+    actions:
+      pvp_japo_p1_death:
+      - 'cancel_event: true'
+      - 'console_command: svar add pvp_japo_p2_wins 1'
+      - 'call_event: pvp_on_round_end;%winner%=%servervariables_globalvalue_pvp_japo_p2%;%winner_rounds%=%servervariables_globalvalue_pvp_japo_p2_wins%;%loser%=%servervariables_globalvalue_pvp_japo_p1%;%round%=%servervariables_globalvalue_pvp_japo_round%;%pvp_world%=%player_world%;%reset_event%=pvp_japo_reset;%init_event%=pvp_japo_init_players;%round_name%=pvp_japo_round;%clean_event%=pvp_japo_clean_map'
+      pvp_japo_p2_death:
+      - 'cancel_event: true'
+      - 'console_command: svar add pvp_japo_p1_wins 1'
+      - 'call_event: pvp_on_round_end;%winner%=%servervariables_globalvalue_pvp_japo_p1%;%winner_rounds%=%servervariables_globalvalue_pvp_japo_p1_wins%;%loser%=%servervariables_globalvalue_pvp_japo_p2%;%round%=%servervariables_globalvalue_pvp_japo_round%;%pvp_world%=%player_world%;%reset_event%=pvp_japo_reset;%init_event%=pvp_japo_init_players;%round_name%=pvp_japo_round;%clean_event%=pvp_japo_clean_map'

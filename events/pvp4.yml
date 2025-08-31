@@ -1,0 +1,95 @@
+Events:
+  pvp4_join:
+    type: block_interact
+    conditions:
+    - '%block_world% == world'
+    - '%block% == PALE_OAK_BUTTON'
+    - '%block_x% == 172'
+    - '%block_y% == 116'
+    - '%block_z% == 180'
+    actions:
+      default:
+      - 'call_event: pvp_on_join_map;%players_count%=%servervariables_globalvalue_pvp4_count%;%init_event%=pvp4_start_match;%map_prefix%=pvp4;%map_name%=Infinito'
+
+  pvp4_clean_map:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_clean_map;%world_name%=pvp4;%pos1%=-101,146,101;%pos2%=100,61,-100'
+
+  pvp4_reset:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_reset_variables;%map_prefix%=pvp4'
+
+  pvp4_music:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_play_music;%pvp_world%=pvp4;%disc%=minecraft:music_disc.5'
+      - 'wait: 356'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp4;%disc%=minecraft:music_disc.5'
+      - 'wait: 356'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp4;%disc%=minecraft:music_disc.5'
+      - 'wait: 356'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp4;%disc%=minecraft:music_disc.5'
+      - 'wait: 356'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp4;%disc%=minecraft:music_disc.5'
+      - 'wait: 356'
+      - 'call_event: pvp_play_music;%pvp_world%=pvp4;%disc%=minecraft:music_disc.5'
+
+  pvp4_infinite_intro:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp4_music'
+      - 'to_player: %p1%: playsound: MUSIC_DISC_5;100;1'
+      - 'to_player: %p2%: playsound: MUSIC_DISC_5;100;1'
+      - 'to_player: %p1%: give_potion_effect: SLOWNESS;220;10;false'
+      - 'to_player: %p2%: give_potion_effect: SLOWNESS;220;10;false'
+      - 'to_player: %p1%: give_potion_effect: SLOW_FALLING;220;1;false'
+      - 'to_player: %p2%: give_potion_effect: SLOW_FALLING;220;1;false'
+      - 'console_command: execute in pvp4 run fill 37 142 -2 39 142 -4 air' # p1
+      - 'console_command: execute in pvp4 run fill -29 142 -2 -27 142 -4 air' # p2
+      - 'wait: 3'
+      - 'to_player: %p1%: playsound: ENTITY_WITCH_DEATH;100;2'
+      - 'to_player: %p2%: playsound: ENTITY_WITCH_DEATH;100;2'
+      - 'console_command: execute in pvp4 run fill 37 142 -2 39 142 -4 minecraft:sandstone' # p1
+      - 'console_command: execute in pvp4 run fill -29 142 -2 -27 142 -4 minecraft:sandstone' # p2
+
+  pvp4_start_match:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_on_map_enter;%p1%=%servervariables_globalvalue_pvp4_p1%;%p2%=%servervariables_globalvalue_pvp4_p2%;%pos1%=e:pvp4:38.5,143,-2.5:0:90;%pos2%=e:pvp4:-27.5,143,-2.5:0:-90'
+      - 'wait: 7'
+      - 'call_event: pvp4_infinite_intro;%p1%=%servervariables_globalvalue_pvp4_p1%;%p2%=%servervariables_globalvalue_pvp4_p2%'
+      - 'wait: 11'
+      - 'console_command: kingscenes playkingscene 7 %servervariables_globalvalue_pvp4_p1%'
+      - 'console_command: kingscenes playkingscene 7 %servervariables_globalvalue_pvp4_p2%'
+      - 'wait: 49'
+      - 'call_event: pvp4_init_players'
+
+  pvp4_init_players:
+    type: call
+    actions:
+      default:
+      - 'call_event: pvp_init_players;%p1%=%servervariables_globalvalue_pvp4_p1%;%p2%=%servervariables_globalvalue_pvp4_p2%;%pos1%=e:pvp4:38.5,66,-2.5:0:90;%pos2%=e:pvp4:-27.5,66,-2.5:0:-90;%item_theme_male%=NICHIRIN;%item_theme_female%=NICHIRIN;%pvp_world%=%player_world%;%border_time%=360'
+
+  pvp4_death:
+    type: player_death
+    conditions:
+    - '%player_world% == pvp4'
+    - '%worldguard_region_name% == pvp4'
+    - '%player% == %servervariables_globalvalue_pvp4_p1% execute pvp4_p1_death'
+    - '%player% == %servervariables_globalvalue_pvp4_p2% execute pvp4_p2_death'
+    actions:
+      pvp4_p1_death:
+      - 'cancel_event: true'
+      - 'console_command: svar add pvp4_p2_wins 1'
+      - 'call_event: pvp_on_round_end;%winner%=%servervariables_globalvalue_pvp4_p2%;%winner_rounds%=%servervariables_globalvalue_pvp4_p2_wins%;%loser%=%servervariables_globalvalue_pvp4_p1%;%round%=%servervariables_globalvalue_pvp4_round%;%pvp_world%=%player_world%;%reset_event%=pvp4_reset;%init_event%=pvp4_init_players;%round_name%=pvp4_round;%clean_event%=pvp4_clean_map'
+      pvp4_p2_death:
+      - 'cancel_event: true'
+      - 'console_command: svar add pvp4_p1_wins 1'
+      - 'call_event: pvp_on_round_end;%winner%=%servervariables_globalvalue_pvp4_p1%;%winner_rounds%=%servervariables_globalvalue_pvp4_p1_wins%;%loser%=%servervariables_globalvalue_pvp4_p2%;%round%=%servervariables_globalvalue_pvp4_round%;%pvp_world%=%player_world%;%reset_event%=pvp4_reset;%init_event%=pvp4_init_players;%round_name%=pvp4_round;%clean_event%=pvp4_clean_map'
