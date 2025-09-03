@@ -1,4 +1,14 @@
 Events:
+  cobweb_only:
+    # Para bloquear ruptura de bloques excepto cobwebs
+    type: block_break
+    conditions:
+    - '%servervariables_value_admin% == 0'
+    - '%block% != COBWEB or %block% != COBBLESTONE'
+    actions:
+      default:
+      - 'cancel_event: true'
+
   pvp_reset_variables:
     # Evento que se activa para reiniciar las variables de un mapa
     # %map_prefix% es el prefijo del mapa usado para definir las variables

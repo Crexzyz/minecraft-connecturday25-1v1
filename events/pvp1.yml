@@ -96,10 +96,10 @@ Events:
       - 'wait: 15'
       - 'to_world: pvp1: message: &a&lVolviendo al lobby en 5 segundos...'
       - 'wait: 5'
-      - 'call_event: pvp1_reset'
       - 'call_event: pvp_return_to_lobby;%p1%=%c_winner%;%p2%=%c_loser%'
       - 'wait: 1'
       - 'console_command: credits %c_winner%'
+      - 'call_event: pvp1_reset'
 
   pvp1_champion_fireworks:
     type: call

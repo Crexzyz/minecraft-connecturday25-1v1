@@ -1,0 +1,28 @@
+Events:
+  comando_spawn:
+    type: player_command
+    conditions:
+    - '%main_command% == /spawn or %main_command% == /lobby'
+    actions:
+      default:
+      - 'cancel_event: true'
+      - 'teleport: world;172.5;116;164;0;0'
+  comando_admin:
+    type: player_command
+    conditions:
+    - '%main_command% == /admin'
+    - '%player_is_op% == no execute blocked'
+    - '%servervariables_value_admin% == 1 execute disable'
+    - '%servervariables_value_admin% == 0 execute enable'
+    actions:
+      blocked:
+      - 'cancel_event: true'
+      - 'message: &cNo tienes permiso para usar este comando.'
+      disable:
+      - 'cancel_event: true'
+      - 'console_command: svar reduce admin 1 %player%'
+      - 'message: &eEl modo administrador ha sido desactivado.'
+      enable:
+      - 'cancel_event: true'
+      - 'console_command: svar add admin 1 %player%'
+      - 'message: &eEl modo administrador ha sido activado.'
