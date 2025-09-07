@@ -3,10 +3,9 @@ Events:
     # Para bloquear ruptura de bloques excepto cobwebs
     type: block_break
     conditions:
-    - '%servervariables_value_admin% == 0'
-    - '%block% != COBWEB or %block% != COBBLESTONE'
+    - '%servervariables_value_admin% == 0 and %block% != COBWEB and %block% != COBBLESTONE execute block'
     actions:
-      default:
+      block:
       - 'cancel_event: true'
 
   pvp_reset_variables:
@@ -233,6 +232,8 @@ Events:
     type: call
     actions:
       default:
+      - 'to_player: %p1%: gamemode: ADVENTURE'
+      - 'to_player: %p2%: gamemode: ADVENTURE'
       - 'console_command: mv tp %p1% world'
       - 'console_command: mv tp %p2% world'
 
